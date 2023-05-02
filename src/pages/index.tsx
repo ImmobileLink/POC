@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import type { PostgrestResponse } from '@supabase/supabase-js';
 import type { GetServerSideProps } from 'next';
-import { subscribe } from 'diagnostics_channel';
 
 type Message = {
   id: number;
@@ -37,12 +35,12 @@ export default function Home({ messages }: Props) {
     };
   }, []);
 
-  const handleNewMessageChange = (event) => {
+  const handleNewMessageChange = (event: any) => {
     setNewMessage(event.target.value);
   };
 
   const handleNewMessageSubmit = async () => {
-    const { data, error } = await supabase.from('mensagens').insert({ mensagem: newMessage });
+    const { error } = await supabase.from('mensagens').insert({ mensagem: newMessage });
     if (error) {
       console.error(error);
     } else {
@@ -66,7 +64,7 @@ export default function Home({ messages }: Props) {
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  const { data: mensagens, error }: PostgrestResponse<Props> = await supabase.from('mensagens').select('*');
+  const { data, error } = await supabase.from('mensagens').select('*');
 
   if (error) {
     return {
@@ -76,7 +74,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
 
   return {
     props: {
-      messages: mensagens,
+      messages: data,
     },
   };
 };
