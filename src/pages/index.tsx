@@ -1,31 +1,29 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabaseClient';
-import type { GetServerSideProps } from 'next';
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabaseClient";
 
 type Message = {
-  id: number;
+  id: string;
   mensagem: string;
+  room_name: string;
 };
 
-type Props = {
-  messages: Message[];
-};
-
-export default function Home({ messages }: Props) {
-  const [realtimeMessages, setRealtimeMessages] = useState<Message[]>(messages);
-  const [newMessage, setNewMessage] = useState('');
+export default function Home() {
+  const [roomMessages, setRoomMessages] = useState<Message[]>([]); //mensagens daquela sala
+  const [newMessage, setNewMessage] = useState(""); //mensagem do input
+  const [roomName, setRoomName] = useState("lobby"); //nome da sala
 
   useEffect(() => {
     const subscription = supabase
-      .channel('schema-db-changes')
+      .channel("table_db_changes")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'INSERT',
-          schema: 'public',
+          event: "INSERT",
+          schema: "public",
+          table: "mensagens",
         },
         (payload: { new: Message }) => {
-          setRealtimeMessages((messages) => [...messages, payload.new]);
+          setRoomMessages((messages: any) => [...messages, payload.new]);
         }
       )
       .subscribe();
@@ -35,46 +33,74 @@ export default function Home({ messages }: Props) {
     };
   }, []);
 
-  const handleNewMessageChange = (event: any) => {
-    setNewMessage(event.target.value);
-  };
-
   const handleNewMessageSubmit = async () => {
-    const { error } = await supabase.from('mensagens').insert({ mensagem: newMessage });
+    const { error } = await supabase
+      .from("mensagens")
+      .insert({ mensagem: newMessage, room_name: roomName });
     if (error) {
       console.error(error);
     } else {
-      setNewMessage('');
+      setNewMessage("");
+    }
+  };
+
+  const handleUpdateRoom = async () => {
+    const { data, error } = await supabase
+      .from("mensagens")
+      .select("*")
+      .eq("room_name", `${roomName}`);
+
+    if (error) {
+      console.error(error);
+    } else {
+      const formattedData = data.map(
+        (item: any) => (
+          console.log(item),
+          {
+            id: item.id,
+            room_name: item.room_name,
+            mensagem: item.mensagem,
+          }
+        )
+      );
+      setRoomMessages(formattedData);
     }
   };
 
   return (
-    <div>
-      <h1>Inserir mensagem:</h1>
-      <input type="text" value={newMessage} onChange={handleNewMessageChange} />
-      <button onClick={handleNewMessageSubmit}>OK</button>
-      <h1>Mensagens:</h1>
-      <ul>
-        {realtimeMessages.map((message) => (
-          <li key={message.id}>{message.mensagem}</li>
-        ))}
-      </ul>
-    </div>
+    <>
+      <div>
+        <h1>Entrar na sala</h1>
+        <input
+          type="text"
+          value={roomName}
+          onChange={(e) => {
+            setRoomName(e.target.value);
+          }}
+          onKeyDown={(e) => {
+            e.key === "Enter" ? handleUpdateRoom() : "";
+          }}
+        />
+      </div>
+      <div>
+        <h1>Inserir mensagem:</h1>
+        <input
+          type="text"
+          value={newMessage}
+          onChange={(e) => {
+            setNewMessage(e.target.value);
+          }}
+          onKeyDown={(e) => {
+            e.key === "Enter" ? handleNewMessageSubmit() : "";
+          }}
+        />
+        <h1>Mensagens:</h1>
+        <ul>
+          {roomMessages
+            ? roomMessages.map((message) => <li key={message.id}>{message.mensagem}</li>)
+            : ""}
+        </ul>
+      </div>
+    </>
   );
 }
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  const { data, error } = await supabase.from('mensagens').select('*');
-
-  if (error) {
-    return {
-      notFound: true,
-    };
-  }
-
-  return {
-    props: {
-      messages: data,
-    },
-  };
-};
