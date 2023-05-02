@@ -1,3 +1,6 @@
+NEXT_PUBLIC_SUPABASE_URL='https://slheuhxicebciypdrwwd.supabase.co'
+NEXT_PUBLIC_SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsaGV1aHhpY2ViY2l5cGRyd3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODI4MjU4MjQsImV4cCI6MTk5ODQwMTgyNH0.2H37U75edLK4HQag-CvMrFzlUZc6sizvqtWcSK1bmqs'
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
