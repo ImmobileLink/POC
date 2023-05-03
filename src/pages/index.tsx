@@ -46,7 +46,7 @@ export default function Home() {
     }
   };
 
-  //Função que troca a sala de chat
+  //Função que troca a sala de chat ao pressionar enter
   const handleUpdateRoom = async () => {
     const { data, error } = await supabase
       .from("mensagens")
