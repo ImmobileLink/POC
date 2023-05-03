@@ -12,6 +12,7 @@ export default function Home() {
   const [newMessage, setNewMessage] = useState(""); //mensagem do input
   const [roomName, setRoomName] = useState("lobby"); //nome da sala
 
+  //useEffect responsável por atualizar a página dada uma inserção no banco de dados
   useEffect(() => {
     const subscription = supabase
       .channel("table_db_changes")
@@ -33,6 +34,7 @@ export default function Home() {
     };
   }, []);
 
+  //Função que insere o texto digitado no Text Field no banco de dados
   const handleNewMessageSubmit = async () => {
     const { error } = await supabase
       .from("mensagens")
@@ -44,18 +46,17 @@ export default function Home() {
     }
   };
 
+  //Função que troca a sala de chat
   const handleUpdateRoom = async () => {
     const { data, error } = await supabase
       .from("mensagens")
       .select("*")
       .eq("room_name", `${roomName}`);
-
     if (error) {
       console.error(error);
     } else {
       const formattedData = data.map(
         (item: any) => (
-          console.log(item),
           {
             id: item.id,
             room_name: item.room_name,
