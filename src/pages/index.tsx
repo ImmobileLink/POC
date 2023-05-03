@@ -82,6 +82,7 @@ export default function Home() {
             e.key === "Enter" ? handleUpdateRoom() : "";
           }}
         />
+        <button onClick={handleUpdateRoom}>Trocar de sala</button>
       </div>
       <div>
         <h1>Inserir mensagem:</h1>
@@ -95,6 +96,7 @@ export default function Home() {
             e.key === "Enter" ? handleNewMessageSubmit() : "";
           }}
         />
+        <button onClick={handleNewMessageSubmit}>Enviar</button>
         <h1>Mensagens:</h1>
         <ul>
           {roomMessages
